@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Practice</title>
+    <style>
+        .switch {
+            height: 50px;
+            display: none;
+        }
+        .switch_line {
+            position: absolute;
+            width: 43px;
+            height: 15px;
+            background-color: #c1c0c0;
+            left: 160px;
+            top: 50px;
+            border-radius: 8px;
+            transition: background-color 2s;
+        }
+        .switch_toggle {
+            height: 25px;
+            width: 25px;
+            position: relative;
+            background-color: white;
+            box-shadow: 0px 0px 5px rgb(150,150,150);
+            border-radius: 12px;
+            top: -5px;
+            left: 0px;
+            transition: left 300ms ,background-color 300ms;
+        }
+        .switch_toggle:hover , .switch_line:hover{
+            cursor: pointer;
+        }
+        .input {
+            padding: 9px 9px 9px 0;
+            height: 17px;
+            position: relative;
+            z-index: 2;
+            font-size: 21px;
+            border-bottom: 1px solid #cccccc;
+            border-top: none;
+            border-left: 1px solid white;
+            background-color: transparent;
+            border-right: 1px solid white;
+            outline: none;
+            transition: opacity 1s;
+        }
+        .input_box{
+            margin-top: 90px;
+            margin-left: 101px;
+            display: none;
+        }
+        .placeholder {
+            position: relative;
+            right: 277px;
+            font-family: Verdana;
+            font-size: 15px;
+            bottom: 0;
+            color: #cccccc;
+            transition: bottom 200ms,font-size 200ms;
+        }
+        .input:focus+span {
+            bottom: 30px;
+            font-size: 12px;
+        }
+        .input:focus{
+            border-bottom: 2px solid rgb(233, 30, 99);
+        }
+
+        .box{
+            box-sizing: border-box;
+            width: 200px;
+            height: 70px;
+            padding: 20px;
+            position: relative;
+            border: 2px solid #502F4C;
+            background-color: #70587C;
+            text-align: center;
+            margin-top: 50px;
+            font-size: 20px;
+            font-family: Verdana;
+            color: white;
+            outline: none;
+        }
+        .box::before{
+            width: 0;
+            box-sizing: border-box;
+            display: block;
+            padding: 21px 0;
+            top: 0;
+            position: absolute;
+            left: 0;
+            content: attr(data-hover);
+            text-align: left;
+            background-color: #502F4C;
+            transition: width 0.5s;
+            overflow: hidden;
+            white-space: nowrap;
+            text-indent: 72px;
+        }
+        .box:hover::before{
+            width: 100%;
+        }
+        div{
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+<div class="switch">
+    <div class="switch_line" onclick="myfunction()">
+        <div class="switch_toggle">
+
+        </div>
+    </div>
+</div>
+<div class="input_box">
+    <input type="text" class="input">
+    <span class="placeholder">
+        Password
+    </span>
+</div>
+<button class="box slide_left" data-hover="Draw" onclick="mygame()">Draw</button>
+</body>
+<script>
+    function myfunction() {
+        var a = document.getElementsByClassName('switch_toggle')[0];
+        if(a.style.left=="0px") {
+            a.style.left = "21px";
+            a.style.backgroundColor = "#e91e63";
+            var b = document.getElementsByClassName('switch_line')[0];
+            b.style.backgroundColor = "#f48fb1";
+        }
+        else
+        {
+            a.style.left = "0px";
+            a.style.backgroundColor = "white";
+            var b = document.getElementsByClassName('switch_line')[0];
+            b.style.backgroundColor = "#c1c0c0";
+        }
+    }
+    var balls = [];
+    var speed;
+    var x = document.createElement("INPUT");
+    x.setAttribute("type","range");
+    x.setAttribute("id","myslider");
+    document.body.insertBefore(x,document.body.childNodes[7]);
+    var slider =  document.getElementById("myslider");
+    slider.step = '1';
+    slider.min = '0';
+    slider.max = '100';
+    slider.value = 6;
+
+    function mygame()
+    {
+
+        var direct = ["to_right","to_left","to_up","to_down","to_top_left","to_top_right","to_bottom_left","to_bottom_right"];
+        var colors = ["red","blue","green","magenta","pink","black","darkgray","crimson","yellow","orange","purple"];
+        var i;
+        for(i=0;i<20;i++)
+        {
+            balls[i] = new ball((Math.floor(Math.random()*970)+15),(Math.floor(Math.random()*470)+15),15,colors[Math.floor(Math.random()*9)],direct[Math.floor(Math.random()*8)]);
+        }
+        myarea.start();
+    }
+    var myarea = {
+        canvas: document.createElement("canvas"),
+                start: function() {
+            this.canvas.width = 1000;
+            this.canvas.height = 500;
+                    this.canvas.style.border="2px solid black";
+                    this.canvas.style.backgroundColor="rgb(240,240,240)";
+            this.context = this.canvas.getContext("2d");
+            document.body.insertBefore(this.canvas , document.body.childNodes[7]);
+            interval = setInterval(drawball,(1000/60));
+        },
+        clear: function() {
+            this.context.clearRect(0,0,this.canvas.width , this.canvas.height);
+        }
+    }
+    function ball(x,y,radius,color,where) {
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+
+        this.update = function() {
+            ctx = myarea.context;
+            ctx.beginPath()
+            ctx.fillStyle = color;
+            ctx.arc(this.x,this.y,this.radius,0,2*Math.PI);
+            ctx.fill();
+        }
+        this.where = where;
+
+    }
+    function drawball() {
+        myarea.clear();
+        var i;
+        var now = new Date();
+        var second = now.getSeconds();
+        speed = parseInt(slider.value);
+        for(i=0;i<20;i++){
+            if((second%5)==0) {
+                if(balls[i].where == "to_right")
+                    balls[i].where = "to_left";
+                else if(balls[i].where == "to_left")
+                    balls[i].where = "to_right";
+                else if(balls[i].where == "to_up")
+                    balls[i].where = "to_down";
+                else if(balls[i].where == "to_down")
+                    balls[i].where = "to_up";
+                else if(balls[i].where == "to_top_right")
+                    balls[i].where = "to_bottom_left";
+                else if(balls[i].where == "to_top_left")
+                    balls[i].where = "to_bottom_right";
+                else if(balls[i].where == "to_bottom_right")
+                    balls[i].where = "to_top_left";
+                else
+                    balls[i].where = "to_top_right";
+            }
+                if (balls[i].where == "to_right") {
+                    if (balls[i].x > 985)
+                        balls[i].where = "to_left";
+                    balls[i].x += speed;
+                }
+                else if (balls[i].where == "to_left") {
+                    if (balls[i].x < 15)
+                        balls[i].where = "to_right";
+                    balls[i].x -= speed;
+                }
+                else if (balls[i].where == "to_up") {
+                    if (balls[i].y < 15)
+                        balls[i].where = "to_down";
+                    balls[i].y -= speed;
+                }
+                else if (balls[i].where == "to_down") {
+                    if (balls[i].y > 485)
+                        balls[i].where = "to_up";
+                    balls[i].y += speed;
+                }
+                else if (balls[i].where == "to_top_left") {
+                    if (balls[i].x < 15)
+                        balls[i].where = "to_top_right";
+                    else if (balls[i].y < 15)
+                        balls[i].where = "to_bottom_left";
+                    else {
+                        balls[i].x -= speed;
+                        balls[i].y -= speed;
+                    }
+
+                }
+                else if (balls[i].where == "to_top_right") {
+                    if (balls[i].x > 985)
+                        balls[i].where = "to_top_left";
+                    else if (balls[i].y < 15)
+                        balls[i].where = "to_bottom_right";
+                    else {
+                        balls[i].x += speed;
+                        balls[i].y -= speed;
+                    }
+                }
+                else if (balls[i].where == "to_bottom_left") {
+                    if (balls[i].x < 15)
+                        balls[i].where = "to_bottom_right";
+                    else if (balls[i].y > 485)
+                        balls[i].where = "to_top_left";
+                    else {
+                        balls[i].x -= speed;
+                        balls[i].y += speed;
+                    }
+                }
+                else {
+                    if (balls[i].x > 985)
+                        balls[i].where = "to_bottom_left";
+                    else if (balls[i].y > 485)
+                        balls[i].where = "to_top_right";
+                    else {
+                        balls[i].x += speed;
+                        balls[i].y += speed;
+                    }
+                }
+
+            balls[i].update();
+        }
+    }
+   /* var i,j,k;
+    var a;
+    for(i=0;i<256;i++)
+    {
+        for(j=0;j<256;j++)
+        {
+            for(k=0;k<256;k++)
+            {
+                a = document.createElement("div");
+                a.style.backgroundColor = "rgb(" + i + "," + j + "," + k + ")";
+                a.style.height = "2px";
+                a.style.width = "2px";
+                document.body.appendChild(a);
+            }
+        }
+    }
+    var i = 55;
+    var a = document.createElement("div");
+
+    a.style.backgroundColor = "rgb(" + i + ",30,40";
+    a.style.height = "10px";
+    a.style.width = "10px";
+    document.body.appendChild(a);
+    a = document.createElement("div");
+    a.style.backgroundColor = "green";
+    a.style.height = "10px";
+    a.style.width = "10px";
+    document.body.appendChild(a);*/
+
+
+</script>
+</html>
